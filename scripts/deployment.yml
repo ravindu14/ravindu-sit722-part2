@@ -1,1 +1,36 @@
-# Write Kubernetes Deployment Script
+apiVersion: apps/v1 #defines the API version for the resource.
+kind: Deployment #defining a Kubernetes Deployment resource.
+metadata:
+  name: book-catalog-deployment #The name assigned to this Deployment.
+spec:
+  replicas: 1 #Number of replicas to run kubernetes pods.
+  selector:
+    matchLabels:
+      app: book-catalog #The Deployment uses this label to manage Pods.
+  template:
+    metadata:
+      labels:
+        app:
+          book-catalog #This label will be assigned to each Pod, helping the Deployment
+          #and Service associate the correct Pods with this application.
+    spec:
+      containers:
+        - name: book-catalog-container #The name of the container inside the Pod.
+          image: book_catalog:latest #The Docker image to be used for the container.
+          imagePullPolicy: IfNotPresent
+          env: #The name of the environment variable being set.
+            - name: DATABASE_URL
+              value: "postgresql://ravindu_sit722_postgresql_ognc_user:BrthJx2aztILSkho8lMplwDl9b5VXpXq@dpg-crhvanbtq21c738418tg-a.oregon-postgres.render.com/ravindu_sit722_postgresql_ognc"
+---
+apiVersion: v1 #The API version for the Service resource
+kind: Service #Defining a Kubernetes service resource.
+metadata:
+  name: book-catalog #The name assigned to this Service.
+spec:
+  selector:
+    app: book-catalog #This tells the Service which Pods to target.
+  type: LoadBalancer
+  ports:
+    - protocol: TCP #The protocol used for this Service is TCP.
+      port: 80
+      targetPort: 8000 #This is the port on the container to which traffic should be forwarded.
